@@ -4,7 +4,11 @@
  */
 package com.ntn.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.util.List;
 import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,40 +20,48 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.io.Serializable;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 import java.util.Set;
 
-/**
- *
- * @author Admin
- */
 @Entity
 @Table(name = "subjectteacher")
+@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Subjectteacher.findAll", query = "SELECT s FROM Subjectteacher s"),
     @NamedQuery(name = "Subjectteacher.findById", query = "SELECT s FROM Subjectteacher s WHERE s.id = :id")})
 public class Subjectteacher implements Serializable {
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "subjectTeacherId")
+    private Set<Classscoretypes> classscoretypesSet;
+
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Id")
     private Integer id;
     @OneToMany(mappedBy = "subjectTeacherId")
-    private Set<Forum> forumSet;
-    @OneToMany(mappedBy = "subjectTeacherId")
-    private Set<Notification> notificationSet;
+    @JsonIgnore
+    private List<Forum> forumList;
     @OneToMany(mappedBy = "subjectTeacherID")
-    private Set<Score> scoreSet;
+    @JsonIgnore
+    private List<Score> scoreList;
     @OneToMany(mappedBy = "subjectTeacherId")
-    private Set<Studentsubjectteacher> studentsubjectteacherSet;
+    @JsonIgnore
+    private List<Studentsubjectteacher> studentsubjectteacherList;
     @JoinColumn(name = "SubjectId", referencedColumnName = "Id")
     @ManyToOne
     private Subject subjectId;
     @JoinColumn(name = "TeacherId", referencedColumnName = "Id")
     @ManyToOne
     private Teacher teacherId;
+    @JoinColumn(name = "SchoolYearId", referencedColumnName = "Id")
+    @ManyToOne
+    private Schoolyear schoolYearId;
+    @JoinColumn(name = "ClassId", referencedColumnName = "Id")
+    @ManyToOne
+    private Class classId;
 
     public Subjectteacher() {
     }
@@ -66,36 +78,34 @@ public class Subjectteacher implements Serializable {
         this.id = id;
     }
 
-    public Set<Forum> getForumSet() {
-        return forumSet;
+    @XmlTransient
+    @JsonIgnore
+    public List<Forum> getForumList() {
+        return forumList;
     }
 
-    public void setForumSet(Set<Forum> forumSet) {
-        this.forumSet = forumSet;
+    public void setForumList(List<Forum> forumList) {
+        this.forumList = forumList;
     }
 
-    public Set<Notification> getNotificationSet() {
-        return notificationSet;
+    @XmlTransient
+    @JsonIgnore
+    public List<Score> getScoreList() {
+        return scoreList;
     }
 
-    public void setNotificationSet(Set<Notification> notificationSet) {
-        this.notificationSet = notificationSet;
+    public void setScoreList(List<Score> scoreList) {
+        this.scoreList = scoreList;
     }
 
-    public Set<Score> getScoreSet() {
-        return scoreSet;
+    @XmlTransient
+    @JsonIgnore
+    public List<Studentsubjectteacher> getStudentsubjectteacherList() {
+        return studentsubjectteacherList;
     }
 
-    public void setScoreSet(Set<Score> scoreSet) {
-        this.scoreSet = scoreSet;
-    }
-
-    public Set<Studentsubjectteacher> getStudentsubjectteacherSet() {
-        return studentsubjectteacherSet;
-    }
-
-    public void setStudentsubjectteacherSet(Set<Studentsubjectteacher> studentsubjectteacherSet) {
-        this.studentsubjectteacherSet = studentsubjectteacherSet;
+    public void setStudentsubjectteacherList(List<Studentsubjectteacher> studentsubjectteacherList) {
+        this.studentsubjectteacherList = studentsubjectteacherList;
     }
 
     public Subject getSubjectId() {
@@ -136,7 +146,33 @@ public class Subjectteacher implements Serializable {
 
     @Override
     public String toString() {
-        return "com.ntn.pojo.Subjectteacher[ id=" + id + " ]";
+        return teacherId + " - " + subjectId;
+    }
+
+    @XmlTransient
+    @JsonIgnore
+    public Set<Classscoretypes> getClassscoretypesSet() {
+        return classscoretypesSet;
+    }
+
+    public void setClassscoretypesSet(Set<Classscoretypes> classscoretypesSet) {
+        this.classscoretypesSet = classscoretypesSet;
+    }
+
+    public Schoolyear getSchoolYearId() {
+        return schoolYearId;
+    }
+
+    public void setSchoolYearId(Schoolyear schoolYearId) {
+        this.schoolYearId = schoolYearId;
     }
     
+     public Class getClassId() {
+        return classId;
+    }
+
+    public void setClassId(Class classId) {
+        this.classId = classId;
+    }
+
 }

@@ -4,6 +4,10 @@
  */
 package com.ntn.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,16 +23,12 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Set;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 
-/**
- *
- * @author Admin
- */
 @Entity
 @Table(name = "teacher")
+@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Teacher.findAll", query = "SELECT t FROM Teacher t"),
     @NamedQuery(name = "Teacher.findById", query = "SELECT t FROM Teacher t WHERE t.id = :id"),
@@ -40,15 +40,11 @@ import java.util.Set;
     @NamedQuery(name = "Teacher.findByBirthdate", query = "SELECT t FROM Teacher t WHERE t.birthdate = :birthdate")})
 public class Teacher implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "Id")
-    private Integer id;
     @Size(max = 255)
     @Column(name = "TeacherName")
     private String teacherName;
+    // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
+    // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
     // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
     @Size(max = 125)
     @Column(name = "Email")
@@ -59,6 +55,13 @@ public class Teacher implements Serializable {
     @Size(max = 255)
     @Column(name = "Address")
     private String address;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @Basic(optional = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id")
+    private Integer id;
     @Column(name = "Gender")
     private Short gender;
     @Column(name = "Birthdate")
@@ -68,9 +71,11 @@ public class Teacher implements Serializable {
     @ManyToOne
     private Department departmentId;
     @OneToMany(mappedBy = "teacherId")
-    private Set<Subjectteacher> subjectteacherSet;
+    @JsonIgnore
+    private List<Subjectteacher> subjectteacherList;
     @OneToMany(mappedBy = "teacherId")
-    private Set<Class> classSet;
+    @JsonIgnore
+    private List<Class> classList;
 
     public Teacher() {
     }
@@ -85,6 +90,76 @@ public class Teacher implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+
+    public Short getGender() {
+        return gender;
+    }
+
+    public void setGender(Short gender) {
+        this.gender = gender;
+    }
+
+    public Date getBirthdate() {
+        return birthdate;
+    }
+
+    public void setBirthdate(Date birthdate) {
+        this.birthdate = birthdate;
+    }
+
+    public Department getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Department departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    @XmlTransient
+    @JsonIgnore
+    public List<Subjectteacher> getSubjectteacherList() {
+        return subjectteacherList;
+    }
+
+    public void setSubjectteacherList(List<Subjectteacher> subjectteacherList) {
+        this.subjectteacherList = subjectteacherList;
+    }
+
+    @XmlTransient
+    @JsonIgnore
+    public List<Class> getClassList() {
+        return classList;
+    }
+
+    public void setClassList(List<Class> classList) {
+        this.classList = classList;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Teacher)) {
+            return false;
+        }
+        Teacher other = (Teacher) object;
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return teacherName;
     }
 
     public String getTeacherName() {
@@ -119,69 +194,4 @@ public class Teacher implements Serializable {
         this.address = address;
     }
 
-    public Short getGender() {
-        return gender;
-    }
-
-    public void setGender(Short gender) {
-        this.gender = gender;
-    }
-
-    public Date getBirthdate() {
-        return birthdate;
-    }
-
-    public void setBirthdate(Date birthdate) {
-        this.birthdate = birthdate;
-    }
-
-    public Department getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(Department departmentId) {
-        this.departmentId = departmentId;
-    }
-
-    public Set<Subjectteacher> getSubjectteacherSet() {
-        return subjectteacherSet;
-    }
-
-    public void setSubjectteacherSet(Set<Subjectteacher> subjectteacherSet) {
-        this.subjectteacherSet = subjectteacherSet;
-    }
-
-    public Set<Class> getClassSet() {
-        return classSet;
-    }
-
-    public void setClassSet(Set<Class> classSet) {
-        this.classSet = classSet;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Teacher)) {
-            return false;
-        }
-        Teacher other = (Teacher) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "com.ntn.pojo.Teacher[ id=" + id + " ]";
-    }
-    
 }

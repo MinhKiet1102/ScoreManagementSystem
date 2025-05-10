@@ -4,6 +4,9 @@
  */
 package com.ntn.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.util.List;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,31 +15,31 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 import java.util.Set;
 
-/**
- *
- * @author Admin
- */
 @Entity
 @Table(name = "typescore")
+@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Typescore.findAll", query = "SELECT t FROM Typescore t"),
     @NamedQuery(name = "Typescore.findByScoreType", query = "SELECT t FROM Typescore t WHERE t.scoreType = :scoreType")})
 public class Typescore implements Serializable {
 
+    @OneToMany(mappedBy = "scoreType")
+    private Set<Classscoretypes> classscoretypesSet;
+
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @NotNull
     @Size(min = 1, max = 50)
     @Column(name = "ScoreType")
     private String scoreType;
     @OneToMany(mappedBy = "scoreType")
-    private Set<Score> scoreSet;
+    @JsonIgnore
+    private List<Score> scoreList;
 
     public Typescore() {
     }
@@ -53,12 +56,14 @@ public class Typescore implements Serializable {
         this.scoreType = scoreType;
     }
 
-    public Set<Score> getScoreSet() {
-        return scoreSet;
+    @XmlTransient
+    @JsonIgnore
+    public List<Score> getScoreList() {
+        return scoreList;
     }
 
-    public void setScoreSet(Set<Score> scoreSet) {
-        this.scoreSet = scoreSet;
+    public void setScoreList(List<Score> scoreList) {
+        this.scoreList = scoreList;
     }
 
     @Override
@@ -83,7 +88,17 @@ public class Typescore implements Serializable {
 
     @Override
     public String toString() {
-        return "com.ntn.pojo.Typescore[ scoreType=" + scoreType + " ]";
+        return scoreType;
+    }
+
+    @XmlTransient
+    @JsonIgnore
+    public Set<Classscoretypes> getClassscoretypesSet() {
+        return classscoretypesSet;
+    }
+
+    public void setClassscoretypesSet(Set<Classscoretypes> classscoretypesSet) {
+        this.classscoretypesSet = classscoretypesSet;
     }
     
 }

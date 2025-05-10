@@ -1,49 +1,59 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.ntn.configs;
 
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ResourceBundleMessageSource;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
+import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.thymeleaf.spring6.view.ThymeleafViewResolver;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
-/**
- *
- * @author Admin
- */
 @Configuration
 public class ThymeleafConfig {
+
     @Bean
-    public ClassLoaderTemplateResolver templateResolver() {
-        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
-        templateResolver.setPrefix("templates/");
-        templateResolver.setSuffix(".html");
-        templateResolver.setTemplateMode("HTML");
-        templateResolver.setCharacterEncoding("UTF-8");
-        templateResolver.setCacheable(false); // Disable caching for development
-        templateResolver.setCheckExistence(true);
-        return templateResolver;
+    public SpringResourceTemplateResolver templateResolver() {
+        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+        resolver.setPrefix("classpath:/templates/");
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode("HTML");
+        resolver.setCharacterEncoding("UTF-8");
+        resolver.setCacheable(false);
+        resolver.setCheckExistence(true);
+        return resolver;
     }
 
     @Bean
-    public SpringTemplateEngine templateEngine() {
-        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-        templateEngine.setTemplateResolver(templateResolver());
-        templateEngine.addDialect(new SpringSecurityDialect());
-        
-        return templateEngine;
+    public SpringTemplateEngine templateEngine(SpringResourceTemplateResolver templateResolver,
+             SpringSecurityDialect springSecurityDialect) {
+        SpringTemplateEngine engine = new SpringTemplateEngine();
+        engine.setTemplateResolver(templateResolver);
+        engine.addDialect(springSecurityDialect);
+        engine.setTemplateEngineMessageSource(messageSource());
+        return engine;
     }
 
     @Bean
-    public ViewResolver thymeleafViewResolver() {
-        ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
-        viewResolver.setTemplateEngine(templateEngine());
-        viewResolver.setCharacterEncoding("UTF-8");
-        return viewResolver;
+    public ViewResolver viewResolver(SpringTemplateEngine templateEngine) {
+        ThymeleafViewResolver resolver = new ThymeleafViewResolver();
+        resolver.setTemplateEngine(templateEngine);
+        resolver.setCharacterEncoding("UTF-8");
+        return resolver;
     }
+
+    @Bean
+    public SpringSecurityDialect springSecurityDialect() {
+        return new SpringSecurityDialect();
+    }
+
+    @Bean
+    public MessageSource messageSource() {
+        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        messageSource.setBasenames("i18n/messages");
+        messageSource.setDefaultEncoding("UTF-8");
+        return messageSource;
+    }
+
 }

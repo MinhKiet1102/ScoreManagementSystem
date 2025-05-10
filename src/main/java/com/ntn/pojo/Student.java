@@ -4,6 +4,10 @@
  */
 package com.ntn.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,17 +22,14 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Set;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 
-/**
- *
- * @author Admin
- */
 @Entity
 @Table(name = "student")
+@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Student.findAll", query = "SELECT s FROM Student s"),
     @NamedQuery(name = "Student.findById", query = "SELECT s FROM Student s WHERE s.id = :id"),
@@ -44,12 +45,6 @@ import java.util.Set;
     @NamedQuery(name = "Student.findByStatus", query = "SELECT s FROM Student s WHERE s.status = :status")})
 public class Student implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "Id")
-    private Integer id;
     @Size(max = 50)
     @Column(name = "StudentCode")
     private String studentCode;
@@ -59,17 +54,12 @@ public class Student implements Serializable {
     @Size(max = 125)
     @Column(name = "LastName")
     private String lastName;
-    @Column(name = "Gender")
-    private Short gender;
     @Size(max = 65)
     @Column(name = "IdentifyCard")
     private String identifyCard;
     @Size(max = 100)
     @Column(name = "Hometown")
     private String hometown;
-    @Column(name = "Birthdate")
-    @Temporal(TemporalType.DATE)
-    private Date birthdate;
     // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
     @Size(max = 100)
     @Column(name = "Email")
@@ -81,15 +71,29 @@ public class Student implements Serializable {
     @Size(max = 30)
     @Column(name = "Status")
     private String status;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @Basic(optional = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id")
+    private Integer id;
+    @Column(name = "Gender")
+    private Short gender;
+    @Column(name = "Birthdate")
+    @Temporal(TemporalType.DATE)
+    private Date birthdate;
+    // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
+    @NotNull
     @JoinColumn(name = "ClassId", referencedColumnName = "Id")
     @ManyToOne
     private Class classId;
-    @OneToMany(mappedBy = "studentId")
-    private Set<Notification> notificationSet;
     @OneToMany(mappedBy = "studentID")
-    private Set<Score> scoreSet;
+    @JsonIgnore
+    private List<Score> scoreList;
     @OneToMany(mappedBy = "studentId")
-    private Set<Studentsubjectteacher> studentsubjectteacherSet;
+    @JsonIgnore
+    private List<Studentsubjectteacher> studentsubjectteacherList;
 
     public Student() {
     }
@@ -104,6 +108,86 @@ public class Student implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+
+    public Short getGender() {
+        return gender;
+    }
+
+    public void setGender(Short gender) {
+        this.gender = gender;
+    }
+
+
+    public Date getBirthdate() {
+        return birthdate;
+    }
+
+    public void setBirthdate(Date birthdate) {
+        this.birthdate = birthdate;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+
+    public Class getClassId() {
+        return classId;
+    }
+
+    public void setClassId(Class classId) {
+        this.classId = classId;
+    }
+
+    @XmlTransient
+    @JsonIgnore
+    public List<Score> getScoreList() {
+        return scoreList;
+    }
+
+    public void setScoreList(List<Score> scoreList) {
+        this.scoreList = scoreList;
+    }
+
+    @XmlTransient
+    @JsonIgnore
+    public List<Studentsubjectteacher> getStudentsubjectteacherList() {
+        return studentsubjectteacherList;
+    }
+
+    public void setStudentsubjectteacherList(List<Studentsubjectteacher> studentsubjectteacherList) {
+        this.studentsubjectteacherList = studentsubjectteacherList;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Student)) {
+            return false;
+        }
+        Student other = (Student) object;
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return firstName + " " + lastName;
     }
 
     public String getStudentCode() {
@@ -130,14 +214,6 @@ public class Student implements Serializable {
         this.lastName = lastName;
     }
 
-    public Short getGender() {
-        return gender;
-    }
-
-    public void setGender(Short gender) {
-        this.gender = gender;
-    }
-
     public String getIdentifyCard() {
         return identifyCard;
     }
@@ -152,22 +228,6 @@ public class Student implements Serializable {
 
     public void setHometown(String hometown) {
         this.hometown = hometown;
-    }
-
-    public Date getBirthdate() {
-        return birthdate;
-    }
-
-    public void setBirthdate(Date birthdate) {
-        this.birthdate = birthdate;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getPhone() {
@@ -186,61 +246,4 @@ public class Student implements Serializable {
         this.status = status;
     }
 
-    public Class getClassId() {
-        return classId;
-    }
-
-    public void setClassId(Class classId) {
-        this.classId = classId;
-    }
-
-    public Set<Notification> getNotificationSet() {
-        return notificationSet;
-    }
-
-    public void setNotificationSet(Set<Notification> notificationSet) {
-        this.notificationSet = notificationSet;
-    }
-
-    public Set<Score> getScoreSet() {
-        return scoreSet;
-    }
-
-    public void setScoreSet(Set<Score> scoreSet) {
-        this.scoreSet = scoreSet;
-    }
-
-    public Set<Studentsubjectteacher> getStudentsubjectteacherSet() {
-        return studentsubjectteacherSet;
-    }
-
-    public void setStudentsubjectteacherSet(Set<Studentsubjectteacher> studentsubjectteacherSet) {
-        this.studentsubjectteacherSet = studentsubjectteacherSet;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Student)) {
-            return false;
-        }
-        Student other = (Student) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "com.ntn.pojo.Student[ id=" + id + " ]";
-    }
-    
 }

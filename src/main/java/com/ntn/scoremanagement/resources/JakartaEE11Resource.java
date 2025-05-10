@@ -1,4 +1,4 @@
-package com.ntn.scoremanagementsystem.resources;
+package com.ntn.scoremanagement.resources;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

@@ -4,6 +4,9 @@
  */
 package com.ntn.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.util.List;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,34 +18,37 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 import java.util.Set;
 
-/**
- *
- * @author Admin
- */
 @Entity
 @Table(name = "department")
+@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Department.findAll", query = "SELECT d FROM Department d"),
     @NamedQuery(name = "Department.findById", query = "SELECT d FROM Department d WHERE d.id = :id"),
     @NamedQuery(name = "Department.findByDepartmentName", query = "SELECT d FROM Department d WHERE d.departmentName = :departmentName")})
 public class Department implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "Id")
-    private Integer id;
     @Size(max = 255)
     @Column(name = "DepartmentName")
     private String departmentName;
+    @OneToMany(mappedBy = "departmentID")
+    private Set<Subject> subjectSet;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @Basic(optional = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id")
+    private Integer id;
     @OneToMany(mappedBy = "departmentId")
-    private Set<Teacher> teacherSet;
+    @JsonIgnore
+    private List<Teacher> teacherList;
     @OneToMany(mappedBy = "departmentId")
-    private Set<Major> majorSet;
+    @JsonIgnore
+    private List<Major> majorList;
 
     public Department() {
     }
@@ -59,28 +65,25 @@ public class Department implements Serializable {
         this.id = id;
     }
 
-    public String getDepartmentName() {
-        return departmentName;
+
+    @XmlTransient
+    @JsonIgnore
+    public List<Teacher> getTeacherList() {
+        return teacherList;
     }
 
-    public void setDepartmentName(String departmentName) {
-        this.departmentName = departmentName;
+    public void setTeacherList(List<Teacher> teacherList) {
+        this.teacherList = teacherList;
     }
 
-    public Set<Teacher> getTeacherSet() {
-        return teacherSet;
+    @XmlTransient
+    @JsonIgnore
+    public List<Major> getMajorList() {
+        return majorList;
     }
 
-    public void setTeacherSet(Set<Teacher> teacherSet) {
-        this.teacherSet = teacherSet;
-    }
-
-    public Set<Major> getMajorSet() {
-        return majorSet;
-    }
-
-    public void setMajorSet(Set<Major> majorSet) {
-        this.majorSet = majorSet;
+    public void setMajorList(List<Major> majorList) {
+        this.majorList = majorList;
     }
 
     @Override
@@ -105,7 +108,25 @@ public class Department implements Serializable {
 
     @Override
     public String toString() {
-        return "com.ntn.pojo.Department[ id=" + id + " ]";
+        return departmentName;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
+
+    @XmlTransient
+    @JsonIgnore
+    public Set<Subject> getSubjectSet() {
+        return subjectSet;
+    }
+
+    public void setSubjectSet(Set<Subject> subjectSet) {
+        this.subjectSet = subjectSet;
     }
     
 }

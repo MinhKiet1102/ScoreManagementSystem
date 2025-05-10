@@ -4,9 +4,15 @@
  */
 package com.ntn.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,16 +23,12 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Set;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 
-/**
- *
- * @author Admin
- */
 @Entity
 @Table(name = "user")
+@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "User.findAll", query = "SELECT u FROM User u"),
     @NamedQuery(name = "User.findById", query = "SELECT u FROM User u WHERE u.id = :id"),
@@ -39,34 +41,26 @@ import java.util.Set;
     @NamedQuery(name = "User.findByUsername", query = "SELECT u FROM User u WHERE u.username = :username"),
     @NamedQuery(name = "User.findByPassword", query = "SELECT u FROM User u WHERE u.password = :password"),
     @NamedQuery(name = "User.findByImage", query = "SELECT u FROM User u WHERE u.image = :image"),
-    @NamedQuery(name = "User.findByActive", query = "SELECT u FROM User u WHERE u.active = :active"),
-    @NamedQuery(name = "User.findByRole", query = "SELECT u FROM User u WHERE u.role = :role")})
+    @NamedQuery(name = "User.findByActive", query = "SELECT u FROM User u WHERE u.active = :active")})
 public class User implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "Id")
-    private Integer id;
     @Size(max = 125)
     @Column(name = "Name")
     private String name;
-    @Column(name = "Gender")
-    private Short gender;
     @Size(max = 65)
     @Column(name = "IdentifyCard")
     private String identifyCard;
     @Size(max = 50)
     @Column(name = "Hometown")
     private String hometown;
-    @Column(name = "Birthdate")
-    @Temporal(TemporalType.DATE)
-    private Date birthdate;
     // @Pattern(regexp="^\\(?(\\d{3})\\)?[- ]?(\\d{3})[- ]?(\\d{4})$", message="Invalid phone/fax format, should be as xxx-xxx-xxxx")//if the field contains phone or fax number consider using this annotation to enforce field validation
     @Size(max = 50)
     @Column(name = "Phone")
     private String phone;
+    // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
+    @Size(max = 100)
+    @Column(name = "Email")
+    private String email;
     @Size(max = 50)
     @Column(name = "Username")
     private String username;
@@ -79,13 +73,33 @@ public class User implements Serializable {
     @Size(max = 25)
     @Column(name = "Active")
     private String active;
-    @Size(max = 7)
+    @Enumerated(EnumType.STRING)
     @Column(name = "Role")
-    private String role;
+    private Role role;
+
+    public enum Role {
+        Admin,
+        Teacher,
+        Student
+    }
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "Id")
+    private Integer id;
+    @Column(name = "Gender")
+    private Short gender;
+    @Column(name = "Birthdate")
+    @Temporal(TemporalType.DATE)
+    private Date birthdate;
     @OneToMany(mappedBy = "userId")
-    private Set<Forumcomment> forumcommentSet;
+    @JsonIgnore
+    private List<Forumcomment> forumcommentList;
     @OneToMany(mappedBy = "userId")
-    private Set<Forum> forumSet;
+    @JsonIgnore
+    private List<Forum> forumList;
 
     public User() {
     }
@@ -102,36 +116,12 @@ public class User implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Short getGender() {
         return gender;
     }
 
     public void setGender(Short gender) {
         this.gender = gender;
-    }
-
-    public String getIdentifyCard() {
-        return identifyCard;
-    }
-
-    public void setIdentifyCard(String identifyCard) {
-        this.identifyCard = identifyCard;
-    }
-
-    public String getHometown() {
-        return hometown;
-    }
-
-    public void setHometown(String hometown) {
-        this.hometown = hometown;
     }
 
     public Date getBirthdate() {
@@ -142,68 +132,24 @@ public class User implements Serializable {
         this.birthdate = birthdate;
     }
 
-    public String getPhone() {
-        return phone;
+    @XmlTransient
+    @JsonIgnore
+    public List<Forumcomment> getForumcommentList() {
+        return forumcommentList;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setForumcommentList(List<Forumcomment> forumcommentList) {
+        this.forumcommentList = forumcommentList;
     }
 
-    public String getUsername() {
-        return username;
+    @XmlTransient
+    @JsonIgnore
+    public List<Forum> getForumList() {
+        return forumList;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public String getActive() {
-        return active;
-    }
-
-    public void setActive(String active) {
-        this.active = active;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public Set<Forumcomment> getForumcommentSet() {
-        return forumcommentSet;
-    }
-
-    public void setForumcommentSet(Set<Forumcomment> forumcommentSet) {
-        this.forumcommentSet = forumcommentSet;
-    }
-
-    public Set<Forum> getForumSet() {
-        return forumSet;
-    }
-
-    public void setForumSet(Set<Forum> forumSet) {
-        this.forumSet = forumSet;
+    public void setForumList(List<Forum> forumList) {
+        this.forumList = forumList;
     }
 
     @Override
@@ -230,5 +176,92 @@ public class User implements Serializable {
     public String toString() {
         return "com.ntn.pojo.User[ id=" + id + " ]";
     }
-    
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getIdentifyCard() {
+        return identifyCard;
+    }
+
+    public void setIdentifyCard(String identifyCard) {
+        this.identifyCard = identifyCard;
+    }
+
+    public String getHometown() {
+        return hometown;
+    }
+
+    public void setHometown(String hometown) {
+        this.hometown = hometown;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public boolean isActive() {
+        return "Active".equalsIgnoreCase(this.active);
+    }
+
+    public String getActive() {
+        return this.active;
+    }
+
+    public void setActive(String active) {
+        this.active = active;
+    }
+
+    public void setActive(boolean isActive) {
+        this.active = isActive ? "Active" : "Inactive";
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }

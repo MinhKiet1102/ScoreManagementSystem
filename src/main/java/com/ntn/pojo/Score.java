@@ -4,9 +4,11 @@
  */
 package com.ntn.pojo;
 
+import java.io.Serializable;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,14 +17,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
-import java.io.Serializable;
+import jakarta.persistence.Transient;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
-/**
- *
- * @author Admin
- */
 @Entity
 @Table(name = "score")
+@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Score.findAll", query = "SELECT s FROM Score s"),
     @NamedQuery(name = "Score.findById", query = "SELECT s FROM Score s WHERE s.id = :id"),
@@ -33,8 +33,8 @@ public class Score implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Id")
     private Integer id;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
@@ -45,19 +45,24 @@ public class Score implements Serializable {
     @Column(name = "IsLocked")
     private Boolean isLocked;
     @JoinColumn(name = "SchoolYearId", referencedColumnName = "Id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Schoolyear schoolYearId;
     @JoinColumn(name = "StudentID", referencedColumnName = "Id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Student studentID;
     @JoinColumn(name = "SubjectTeacherID", referencedColumnName = "Id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Subjectteacher subjectTeacherID;
     @JoinColumn(name = "ScoreType", referencedColumnName = "ScoreType")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Typescore scoreType;
 
+    @Transient
+    private Float averageScore;
+
     public Score() {
+        this.isDraft = false;
+        this.isLocked = false;
     }
 
     public Score(Integer id) {
@@ -88,8 +93,12 @@ public class Score implements Serializable {
         this.isDraft = isDraft;
     }
 
+    public Boolean isLocked() {
+        return this.isLocked;
+    }
+
     public Boolean getIsLocked() {
-        return isLocked;
+        return isLocked != null ? isLocked : false;
     }
 
     public void setIsLocked(Boolean isLocked) {
@@ -128,6 +137,14 @@ public class Score implements Serializable {
         this.scoreType = scoreType;
     }
 
+    public Float getAverageScore() {
+        return averageScore;
+    }
+
+    public void setAverageScore(Float averageScore) {
+        this.averageScore = averageScore;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -150,7 +167,18 @@ public class Score implements Serializable {
 
     @Override
     public String toString() {
-        return "com.ntn.pojo.Score[ id=" + id + " ]";
+        return String.format("Score[id=%s, value=%s]",
+                (id != null ? id : "null"),
+                (scoreValue != null ? scoreValue : "chưa có điểm"));
     }
     
+    public Float getWeightFromClassScoreType() {
+        if (this.getScoreType() == null || this.getStudentID() == null || 
+            this.getSubjectTeacherID() == null || this.getSchoolYearId() == null ||
+            this.getStudentID().getClassId() == null)
+            return null;
+            
+        return null;
+    }
+
 }

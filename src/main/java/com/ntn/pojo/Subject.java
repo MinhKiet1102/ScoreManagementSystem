@@ -4,26 +4,28 @@
  */
 package com.ntn.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.util.List;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
-import java.util.Set;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 
-/**
- *
- * @author Admin
- */
 @Entity
 @Table(name = "subject")
+@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Subject.findAll", query = "SELECT s FROM Subject s"),
     @NamedQuery(name = "Subject.findById", query = "SELECT s FROM Subject s WHERE s.id = :id"),
@@ -32,21 +34,26 @@ import java.util.Set;
     @NamedQuery(name = "Subject.findByNumberOfLessons", query = "SELECT s FROM Subject s WHERE s.numberOfLessons = :numberOfLessons")})
 public class Subject implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "Id")
-    private Integer id;
     @Size(max = 255)
     @Column(name = "SubjectName")
     private String subjectName;
+    @JoinColumn(name = "DepartmentID", referencedColumnName = "Id")
+    @ManyToOne
+    private Department departmentID;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @Basic(optional = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id")
+    private Integer id;
     @Column(name = "Credits")
     private Integer credits;
     @Column(name = "NumberOfLessons")
     private Integer numberOfLessons;
     @OneToMany(mappedBy = "subjectId")
-    private Set<Subjectteacher> subjectteacherSet;
+    @JsonIgnore
+    private List<Subjectteacher> subjectteacherList;
 
     public Subject() {
     }
@@ -63,13 +70,6 @@ public class Subject implements Serializable {
         this.id = id;
     }
 
-    public String getSubjectName() {
-        return subjectName;
-    }
-
-    public void setSubjectName(String subjectName) {
-        this.subjectName = subjectName;
-    }
 
     public Integer getCredits() {
         return credits;
@@ -87,12 +87,14 @@ public class Subject implements Serializable {
         this.numberOfLessons = numberOfLessons;
     }
 
-    public Set<Subjectteacher> getSubjectteacherSet() {
-        return subjectteacherSet;
+    @XmlTransient
+    @JsonIgnore
+    public List<Subjectteacher> getSubjectteacherList() {
+        return subjectteacherList;
     }
 
-    public void setSubjectteacherSet(Set<Subjectteacher> subjectteacherSet) {
-        this.subjectteacherSet = subjectteacherSet;
+    public void setSubjectteacherList(List<Subjectteacher> subjectteacherList) {
+        this.subjectteacherList = subjectteacherList;
     }
 
     @Override
@@ -117,7 +119,23 @@ public class Subject implements Serializable {
 
     @Override
     public String toString() {
-        return "com.ntn.pojo.Subject[ id=" + id + " ]";
+        return subjectName;
+    }
+
+    public String getSubjectName() {
+        return subjectName;
+    }
+
+    public void setSubjectName(String subjectName) {
+        this.subjectName = subjectName;
+    }
+
+    public Department getDepartmentID() {
+        return departmentID;
+    }
+
+    public void setDepartmentID(Department departmentID) {
+        this.departmentID = departmentID;
     }
     
 }

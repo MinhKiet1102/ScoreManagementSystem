@@ -4,6 +4,10 @@
  */
 package com.ntn.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,16 +23,12 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Set;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 
-/**
- *
- * @author Admin
- */
 @Entity
 @Table(name = "forumcomment")
+@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Forumcomment.findAll", query = "SELECT f FROM Forumcomment f"),
     @NamedQuery(name = "Forumcomment.findById", query = "SELECT f FROM Forumcomment f WHERE f.id = :id"),
@@ -37,18 +37,19 @@ import java.util.Set;
     @NamedQuery(name = "Forumcomment.findByCreatedAt", query = "SELECT f FROM Forumcomment f WHERE f.createdAt = :createdAt")})
 public class Forumcomment implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "Id")
-    private Integer id;
     @Size(max = 255)
     @Column(name = "Title")
     private String title;
     @Size(max = 3000)
     @Column(name = "Content")
     private String content;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @Basic(optional = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id")
+    private Integer id;
     @Column(name = "CreatedAt")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
@@ -56,7 +57,7 @@ public class Forumcomment implements Serializable {
     @ManyToOne
     private Forum forumId;
     @OneToMany(mappedBy = "parentCommentId")
-    private Set<Forumcomment> forumcommentSet;
+    private List<Forumcomment> forumcommentList;
     @JoinColumn(name = "ParentCommentId", referencedColumnName = "Id")
     @ManyToOne
     private Forumcomment parentCommentId;
@@ -79,21 +80,6 @@ public class Forumcomment implements Serializable {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
 
     public Date getCreatedAt() {
         return createdAt;
@@ -111,12 +97,14 @@ public class Forumcomment implements Serializable {
         this.forumId = forumId;
     }
 
-    public Set<Forumcomment> getForumcommentSet() {
-        return forumcommentSet;
+    @XmlTransient
+    @JsonIgnore
+    public List<Forumcomment> getForumcommentList() {
+        return forumcommentList;
     }
 
-    public void setForumcommentSet(Set<Forumcomment> forumcommentSet) {
-        this.forumcommentSet = forumcommentSet;
+    public void setForumcommentList(List<Forumcomment> forumcommentList) {
+        this.forumcommentList = forumcommentList;
     }
 
     public Forumcomment getParentCommentId() {
@@ -158,6 +146,22 @@ public class Forumcomment implements Serializable {
     @Override
     public String toString() {
         return "com.ntn.pojo.Forumcomment[ id=" + id + " ]";
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
     
 }

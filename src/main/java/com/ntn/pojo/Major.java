@@ -4,6 +4,9 @@
  */
 package com.ntn.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.util.List;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,39 +20,37 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
-import java.util.Set;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 
-/**
- *
- * @author Admin
- */
 @Entity
 @Table(name = "major")
+@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Major.findAll", query = "SELECT m FROM Major m"),
     @NamedQuery(name = "Major.findById", query = "SELECT m FROM Major m WHERE m.id = :id"),
-    @NamedQuery(name = "Major.findByMajorName", query = "SELECT m FROM Major m WHERE m.majorName = :majorName"),
-    @NamedQuery(name = "Major.findByTrainingType", query = "SELECT m FROM Major m WHERE m.trainingType = :trainingType")})
+    @NamedQuery(name = "Major.findByMajorName", query = "SELECT m FROM Major m WHERE m.majorName = :majorName")})
 public class Major implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "Id")
-    private Integer id;
     @Size(max = 255)
     @Column(name = "MajorName")
     private String majorName;
-    @Size(max = 14)
-    @Column(name = "TrainingType")
-    private String trainingType;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @Basic(optional = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id")
+    private Integer id;
     @JoinColumn(name = "DepartmentId", referencedColumnName = "Id")
     @ManyToOne
     private Department departmentId;
+    @JoinColumn(name = "TrainingTypeId", referencedColumnName = "Id")
+    @ManyToOne
+    private Trainingtype trainingTypeId;
     @OneToMany(mappedBy = "majorId")
-    private Set<Class> classSet;
+    @JsonIgnore
+    private List<Class> classList;
 
     public Major() {
     }
@@ -66,21 +67,6 @@ public class Major implements Serializable {
         this.id = id;
     }
 
-    public String getMajorName() {
-        return majorName;
-    }
-
-    public void setMajorName(String majorName) {
-        this.majorName = majorName;
-    }
-
-    public String getTrainingType() {
-        return trainingType;
-    }
-
-    public void setTrainingType(String trainingType) {
-        this.trainingType = trainingType;
-    }
 
     public Department getDepartmentId() {
         return departmentId;
@@ -90,12 +76,22 @@ public class Major implements Serializable {
         this.departmentId = departmentId;
     }
 
-    public Set<Class> getClassSet() {
-        return classSet;
+    public Trainingtype getTrainingTypeId() {
+        return trainingTypeId;
     }
 
-    public void setClassSet(Set<Class> classSet) {
-        this.classSet = classSet;
+    public void setTrainingTypeId(Trainingtype trainingTypeId) {
+        this.trainingTypeId = trainingTypeId;
+    }
+
+    @XmlTransient
+    @JsonIgnore
+    public List<Class> getClassList() {
+        return classList;
+    }
+
+    public void setClassList(List<Class> classList) {
+        this.classList = classList;
     }
 
     @Override
@@ -120,7 +116,15 @@ public class Major implements Serializable {
 
     @Override
     public String toString() {
-        return "com.ntn.pojo.Major[ id=" + id + " ]";
+        return majorName;
+    }
+
+    public String getMajorName() {
+        return majorName;
+    }
+
+    public void setMajorName(String majorName) {
+        this.majorName = majorName;
     }
     
 }
