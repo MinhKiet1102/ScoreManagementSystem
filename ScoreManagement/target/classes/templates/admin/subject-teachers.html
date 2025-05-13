@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+    <head>
+        <meta charset="UTF-8">
+        <title>Quản lý phân công giảng dạy</title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas fa-chalkboard-teacher"></i> Quản lý phân công giảng dạy
+            </h2>
+
+            <div sec:authorize="hasAuthority('Admin')">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSubjTeachModal">
+                    <i class="fas fa-plus-circle"></i> Thêm phân công mới
+                </button>
+            </div>
+        </div>
+
+        <!-- Thông báo -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Lọc theo giảng viên hoặc môn học -->
+        <!-- Lọc theo giảng viên, môn học, khoa và hệ đào tạo -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row mb-3">
+                    <!-- Lọc theo giảng viên -->
+                    <div class="col-md-6">
+                        <form th:action="@{/admin/subjTeach}" method="get">
+                            <div class="input-group">
+                                <select name="teacherId" class="form-select">
+                                    <option value="">-- Chọn giảng viên --</option>
+                                    <option th:each="teacher : ${teachers}" 
+                                            th:value="${teacher.id}" 
+                                            th:text="${teacher.teacherName}"
+                                            th:selected="${param.teacherId != null && param.teacherId[0] == teacher.id.toString()}">
+                                    </option>
+                                </select>
+                                <button class="btn btn-outline-secondary" type="submit">Lọc theo giảng viên</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Lọc theo môn học -->
+                    <div class="col-md-6">
+                        <form th:action="@{/admin/subjTeach}" method="get">
+                            <div class="input-group">
+                                <select name="subjectId" class="form-select">
+                                    <option value="">-- Chọn môn học --</option>
+                                    <option th:each="subject : ${subjects}" 
+                                            th:value="${subject.id}" 
+                                            th:text="${subject.subjectName}"
+                                            th:selected="${param.subjectId != null && param.subjectId[0] == subject.id.toString()}">
+                                    </option>
+                                </select>
+                                <button class="btn btn-outline-secondary" type="submit">Lọc theo môn học</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <!-- Lọc theo khoa -->
+                    <div class="col-md-6">
+                        <form th:action="@{/admin/subjTeach}" method="get">
+                            <div class="input-group">
+                                <select name="departmentId" class="form-select">
+                                    <option value="">-- Chọn khoa --</option>
+                                    <option th:each="dept : ${departments}" 
+                                            th:value="${dept.id}" 
+                                            th:text="${dept.departmentName}"
+                                            th:selected="${param.departmentId != null && param.departmentId[0] == dept.id.toString()}">
+                                    </option>
+                                </select>
+                                <button class="btn btn-outline-secondary" type="submit">Lọc theo khoa</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <a th:href="@{/admin/subjTeach}" class="btn btn-secondary">
+                            <i class="fas fa-sync"></i> Xóa tất cả bộ lọc
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danh sách phân công -->
+        <div class="card shadow">
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(subjectTeachers)}" class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Không có phân công giảng dạy nào trong hệ thống.
+                </div>
+
+                <div th:if="${not #lists.isEmpty(subjectTeachers)}" class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Môn học</th>
+                                <th>Giảng viên</th>
+                                <th>Lớp học</th>
+                                <th>Năm học - Học kỳ</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="subjTeach : ${subjectTeachers}">
+                                <td th:text="${subjTeach.id}"></td>
+                                <td th:text="${subjTeach.subjectId.subjectName}"></td>
+                                <td th:text="${subjTeach.teacherId.teacherName}"></td>
+                                <td th:text="${subjTeach.classId != null ? subjTeach.classId.className : 'Chưa phân công lớp'}"></td>
+                                <td th:text="${subjTeach.schoolYearId != null ? subjTeach.schoolYearId.nameYear + ' - ' + subjTeach.schoolYearId.semesterName : 'Chưa phân công học kỳ'}"></td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-primary" onclick="openEditModal(this)"
+                                                th:data-id="${subjTeach.id}" 
+                                                th:data-subject-id="${subjTeach.subjectId.id}"
+                                                th:data-teacher-id="${subjTeach.teacherId.id}"
+                                                th:data-class-id="${subjTeach.classId != null ? subjTeach.classId.id : ''}"
+                                                th:data-school-year-id="${subjTeach.schoolYearId != null ? subjTeach.schoolYearId.id : ''}">
+                                            <i class="fas fa-edit"></i> Sửa
+                                        </button>
+                                        <a th:href="@{'/admin/subjTeach/delete/' + ${subjTeach.id}}" class="btn btn-sm btn-danger"
+                                           onclick="return confirm('Bạn có chắc chắn muốn xóa phân công này?');">
+                                            <i class="fas fa-trash"></i> Xóa
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm Phân công giảng dạy -->
+    <div class="modal fade" id="addSubjTeachModal" tabindex="-1" aria-labelledby="addSubjTeachModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="addSubjTeachModalLabel"><i class="fas fa-plus-circle"></i> Thêm phân công giảng dạy mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/admin/subjTeach/add}" method="post" id="addSubjTeachForm">
+                    <div class="modal-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="addSchoolYearId" class="form-label">Năm học - Học kỳ <span class="text-danger">*</span></label>
+                                <select class="form-select" id="addSchoolYearId" name="schoolYearId.id" required>
+                                    <option value="">-- Chọn năm học - học kỳ --</option>
+                                    <option th:each="year : ${schoolYears}" 
+                                            th:value="${year.id}" 
+                                            th:text="${year.nameYear + ' - ' + year.semesterName}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="addClassId" class="form-label">Lớp học <span class="text-danger">*</span></label>
+                                <select class="form-select" id="addClassId" name="classId.id" required>
+                                    <option value="">-- Chọn lớp học --</option>
+                                    <option th:each="class : ${classes}" 
+                                            th:value="${class.id}" 
+                                            th:text="${class.className}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="addSubjectId" class="form-label">Môn học <span class="text-danger">*</span></label>
+                                <select class="form-select" id="addSubjectId" name="subjectId.id" required>
+                                    <option value="">-- Chọn môn học --</option>
+                                    <option th:each="subject : ${subjects}" 
+                                            th:value="${subject.id}" 
+                                            th:text="${subject.subjectName}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="addTeacherId" class="form-label">Giảng viên <span class="text-danger">*</span></label>
+                                <select class="form-select" id="addTeacherId" name="teacherId.id" required>
+                                    <option value="">-- Chọn giảng viên --</option>
+                                    <option th:each="teacher : ${teachers}" 
+                                            th:value="${teacher.id}" 
+                                            th:text="${teacher.teacherName}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" form="addSubjTeachForm" class="btn btn-primary">Lưu phân công</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cập nhật Phân công giảng dạy -->
+    <div class="modal fade" id="editSubjTeachModal" tabindex="-1" aria-labelledby="editSubjTeachModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="editSubjTeachModalLabel"><i class="fas fa-edit"></i> Cập nhật phân công giảng dạy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/admin/subjTeach/update}" method="post" id="editSubjTeachForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="editSubjTeachId" name="id">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="editSchoolYearId" class="form-label">Năm học - Học kỳ <span class="text-danger">*</span></label>
+                                <select class="form-select" id="editSchoolYearId" name="schoolYearId.id" required>
+                                    <option value="">-- Chọn năm học - học kỳ --</option>
+                                    <option th:each="year : ${schoolYears}" 
+                                            th:value="${year.id}" 
+                                            th:text="${year.nameYear + ' - ' + year.semesterName}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editClassId" class="form-label">Lớp học <span class="text-danger">*</span></label>
+                                <select class="form-select" id="editClassId" name="classId.id" required>
+                                    <option value="">-- Chọn lớp học --</option>
+                                    <option th:each="class : ${classes}" 
+                                            th:value="${class.id}" 
+                                            th:text="${class.className}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editSubjectId" class="form-label">Môn học <span class="text-danger">*</span></label>
+                                <select class="form-select" id="editSubjectId" name="subjectId.id" required>
+                                    <option value="">-- Chọn môn học --</option>
+                                    <option th:each="subject : ${subjects}" 
+                                            th:value="${subject.id}" 
+                                            th:text="${subject.subjectName}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="editTeacherId" class="form-label">Giảng viên <span class="text-danger">*</span></label>
+                                <select class="form-select" id="editTeacherId" name="teacherId.id" required>
+                                    <option value="">-- Chọn giảng viên --</option>
+                                    <option th:each="teacher : ${teachers}" 
+                                            th:value="${teacher.id}" 
+                                            th:text="${teacher.teacherName}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" form="editSubjTeachForm" class="btn btn-warning">Cập nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="base :: footer"></div>
+    <div th:replace="base :: scripts"></div>
+
+    <script>
+        function openEditModal(button) {
+            const id = button.getAttribute('data-id');
+            const subjectId = button.getAttribute('data-subject-id');
+            const teacherId = button.getAttribute('data-teacher-id');
+            const classId = button.getAttribute('data-class-id');
+            const schoolYearId = button.getAttribute('data-school-year-id');
+
+            // Điền dữ liệu vào modal
+            document.getElementById('editSubjTeachId').value = id;
+            document.getElementById('editSubjectId').value = subjectId;
+            document.getElementById('editTeacherId').value = teacherId;
+            document.getElementById('editClassId').value = classId;
+            document.getElementById('editSchoolYearId').value = schoolYearId;
+
+            // Mở modal
+            const editModal = new bootstrap.Modal(document.getElementById('editSubjTeachModal'));
+            editModal.show();
+        }
+
+        // Hiển thị modal thêm khi có lỗi validation
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('error') && urlParams.get('error') === 'add-validation') {
+                const addModal = new bootstrap.Modal(document.getElementById('addSubjTeachModal'));
+                addModal.show();
+            }
+
+            if (urlParams.has('error') && urlParams.get('error') === 'update-validation') {
+                const editModal = new bootstrap.Modal(document.getElementById('editSubjTeachModal'));
+                editModal.show();
+            }
+        });
+    </script>
+</body>
+</html>

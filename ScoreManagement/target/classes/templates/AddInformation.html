@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+    <head>
+        <meta charset="UTF-8">
+        <title>Thông tin bổ sung</title>
+        <th:block th:replace="base :: styles"></th:block>
+    </head>
+    <body class="bg-light">
+        <div class="container">
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-6">
+                    <div class="card shadow">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">Thông tin bổ sung</h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Hiển thị thông báo lỗi nếu có -->
+                            <div class="alert alert-danger mb-3" th:if="${errorMessage != null}">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <span th:text="${errorMessage}"></span>
+                            </div>
+
+                            <div class="text-center mb-4">
+                                <i th:if="${provider == 'facebook'}" class="fab fa-facebook text-primary fa-4x mb-3"></i>
+                                <i th:if="${provider == 'google'}" class="fab fa-google text-danger fa-4x mb-3"></i>
+                                <p>Xin chào <strong th:text="${name}"></strong>!</p>
+                                <p>Chúng tôi cần thêm email của bạn để hoàn tất quá trình đăng nhập.</p>
+                            </div>
+
+                            <form th:action="@{/oauth2/submit-additional-info}" method="post" onsubmit="return validateEmail()">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" required 
+                                           placeholder="Nhập địa chỉ email của bạn (@dh.edu.vn)"
+                                           pattern="[a-zA-Z0-9._%+-]+@dh\.edu\.vn$" 
+                                           title="Email phải có định dạng @dh.edu.vn">
+                                    <small class="text-muted">Vui lòng nhập email do trường cấp (<b>@dh.edu.vn</b>) để xác minh bạn là học sinh hoặc giảng viên của trường.</small>
+                                    <div class="invalid-feedback" id="emailError"></div>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <a th:href="@{/login}" class="btn btn-outline-secondary">Quay lại đăng nhập</a>
+                                    <button type="submit" class="btn btn-primary">Hoàn tất đăng nhập</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        function validateEmail() {
+            var email = document.getElementById('email').value;
+            var emailError = document.getElementById('emailError');
+
+            if (!email.endsWith('@dh.edu.vn')) {
+                emailError.textContent = 'Email phải có định dạng @dh.edu.vn';
+                document.getElementById('email').classList.add('is-invalid');
+                return false;
+            }
+            return true;
+        }
+    </script>
+</html>

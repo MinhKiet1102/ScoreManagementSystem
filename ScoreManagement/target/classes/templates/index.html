@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<!-- Thay đổi trong mỗi trang HTML -->
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:lang="${#locale.language}" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{home.title}">Hệ Thống Quản Lý Điểm Sinh Viên</title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+    
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-7 hero-text">
+                    <h1 class="display-3 fw-bold mb-4" th:text="#{home.hero.heading}">Hệ Thống Quản Lý Điểm Sinh Viên</h1>
+                    <p class="fs-5 mb-4" th:text="#{home.hero.subtitle}">Công cụ toàn diện giúp quản lý, theo dõi và phân tích kết quả học tập một cách hiệu quả</p>
+                    <div class="d-flex gap-3">
+                        <a href="#features" class="btn btn-light btn-lg px-4" th:text="#{home.hero.learn.more}">Tìm hiểu thêm</a>
+                        <a href="#quick-access" class="btn btn-outline-light btn-lg px-4" th:text="#{home.hero.quick.access}">Truy cập nhanh</a>
+                    </div>
+                </div>
+                <div class="col-md-5 d-none d-md-block">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2995/2995392.png" alt="Quản lý điểm" class="img-fluid" style="max-height: 300px;">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Features Section -->
+    <div class="container mb-5" id="features">
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h2 class="fw-bold" th:text="#{home.features.heading}">Tính năng nổi bật</h2>
+                <p class="text-muted" th:text="#{home.features.subtitle}">Hệ thống quản lý điểm hiện đại với đầy đủ chức năng cho mọi đối tượng</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center py-4">
+                        <div class="feature-icon text-primary">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <h5 class="card-title" th:text="#{home.feature.score}">Quản lý điểm số</h5>
+                        <p class="card-text" th:text="#{home.feature.score.desc}">Nhập, quản lý và theo dõi điểm số sinh viên theo nhiều tiêu chí, hệ số đánh giá.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center py-4">
+                        <div class="feature-icon text-success">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h5 class="card-title" th:text="#{home.feature.stats}">Thống kê & Báo cáo</h5>
+                        <p class="card-text" th:text="#{home.feature.stats.desc}">Xem thống kê, biểu đồ phân tích kết quả học tập theo lớp, môn học, khoa...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center py-4">
+                        <div class="feature-icon text-info">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h5 class="card-title" th:text="#{home.feature.roles}">Phân quyền chi tiết</h5>
+                        <p class="card-text" th:text="#{home.feature.roles.desc}">Phân quyền chi tiết theo vai trò: Sinh viên, Giảng viên, Quản trị viên.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center py-4">
+                        <div class="feature-icon text-warning">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h5 class="card-title" th:text="#{home.feature.notifications}">Thông báo tự động</h5>
+                        <p class="card-text" th:text="#{home.feature.notifications.desc}">Hệ thống tự động thông báo khi có điểm mới, thay đổi điểm hoặc các sự kiện quan trọng.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center py-4">
+                        <div class="feature-icon text-danger">
+                            <i class="fas fa-file-export"></i>
+                        </div>
+                        <h5 class="card-title" th:text="#{home.feature.data}">Xuất/nhập dữ liệu</h5>
+                        <p class="card-text" th:text="#{home.feature.data.desc}">Hỗ trợ nhập điểm từ file Excel, xuất báo cáo dưới nhiều định dạng.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center py-4">
+                        <div class="feature-icon text-secondary">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h5 class="card-title" th:text="#{home.feature.forum}">Diễn đàn trao đổi</h5>
+                        <p class="card-text" th:text="#{home.feature.forum.desc}">Kênh trao đổi trực tiếp giữa sinh viên và giảng viên về học tập, điểm số.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Access Section -->
+    <div class="container mb-5" id="quick-access">
+        <div class="row mb-4">
+            <div class="col">
+                <h2 class="fw-bold"><i class="fas fa-bolt me-2"></i><span th:text="#{home.quickaccess}">Truy cập nhanh</span></h2>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Guest Quick Access -->
+            <div class="col-md-4" sec:authorize="!isAuthenticated()">
+                <div class="quick-access">
+                    <h5 class="mb-3 text-primary"><i class="fas fa-sign-in-alt me-2"></i><span th:text="#{home.join}">Tham gia ngay</span></h5>
+                    <div class="card border-0 bg-light mb-3">
+                        <div class="card-body text-center">
+                            <p class="mb-3" th:text="#{home.join.desc}">Đăng nhập để truy cập hệ thống quản lý điểm của trường</p>
+                            <a th:href="@{/login}" class="btn btn-primary mb-2 w-100">
+                                <i class="fas fa-sign-in-alt me-2"></i><span th:text="#{nav.login}">Đăng nhập</span>
+                            </a>
+                            <a th:href="@{/registerStudent}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-user-plus me-2"></i><span th:text="#{nav.register}">Đăng ký tài khoản</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Help & Support -->
+            <div class="col-md-4">
+                <div class="quick-access">
+                    <h5 class="mb-3 text-secondary"><i class="fas fa-question-circle me-2"></i><span th:text="#{home.support}">Hỗ trợ</span></h5>
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <p class="mb-3"><i class="fas fa-book me-2"></i><span th:text="#{home.support.guide}">Hướng dẫn sử dụng hệ thống</span></p>
+                            <p class="mb-3"><i class="fas fa-envelope me-2"></i><span th:text="#{home.support.email}">Email: milkyway@dh.edu.vn</span></p>
+                            <p class="mb-0"><i class="fas fa-phone me-2"></i><span th:text="#{home.support.hotline}">Hotline: (028) 1234 5678</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Latest Updates -->
+            <div class="col-md-4">
+                <div class="quick-access">
+                    <h5 class="mb-3 text-danger"><i class="fas fa-bell me-2"></i><span th:text="#{home.updates}">Thông báo mới nhất</span></h5>
+                    <div class="card border-0 bg-light">
+                        <div class="card-body p-0">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item bg-transparent d-flex align-items-center">
+                                    <span class="badge bg-danger me-2" th:text="#{home.update.new}">Mới</span>
+                                    <small th:text="#{home.update.system}">Cập nhật hệ thống v2.5: Thêm tính năng thống kê theo khoa</small>
+                                </li>
+                                <li class="list-group-item bg-transparent d-flex align-items-center">
+                                    <span class="badge bg-danger me-2" th:text="#{home.update.new}">Mới</span>
+                                    <small th:text="#{home.update.exam}">Lịch thi cuối kỳ đã được cập nhật. Sinh viên xem tại mục Lịch thi.</small>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:replace="base :: footer"></div>
+</body>
+</html>
