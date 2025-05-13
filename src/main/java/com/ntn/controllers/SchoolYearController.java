@@ -165,28 +165,16 @@ public class SchoolYearController {
         return "redirect:/admin/school-years";
     }
 
-    @GetMapping("/admin/school-years/delete/{id}")
-    public String schoolYearDelete(@PathVariable("id") int schoolYearId, RedirectAttributes redirectAttributes) {
-        try {
-            boolean success = schoolYearService.deleteSchoolYear(schoolYearId);
+    @GetMapping("/admin/school-years/current")
+    @ResponseBody
+    public ResponseEntity<Schoolyear> getCurrentSchoolYear() {
+        int schoolYearId = schoolYearService.getCurrentSchoolYearId();
+        Schoolyear schoolYear = schoolYearService.getSchoolYearById(schoolYearId);
 
-            if (success) {
-                redirectAttributes.addFlashAttribute("successMessage", "Xóa năm học thành công");
-            } else {
-                // Kiểm tra xem có dữ liệu liên quan không
-                if (schoolYearService.hasRelatedData(schoolYearId)) {
-                    redirectAttributes.addFlashAttribute("errorMessage",
-                            "Không thể xóa năm học vì đã có dữ liệu điểm số hoặc lịch học liên quan.");
-                } else {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Không thể xóa năm học");
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
+        if (schoolYear != null) {
+            return new ResponseEntity<>(schoolYear, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
-        return "redirect:/admin/school-years";
     }
-
 }
