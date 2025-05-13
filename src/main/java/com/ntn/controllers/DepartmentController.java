@@ -53,7 +53,16 @@ public class DepartmentController {
         return "redirect:/admin/departments";
     }
 
-
+    @GetMapping("/admin/departments/{id}")
+    @ResponseBody
+    public ResponseEntity<Department> getDepartment(@PathVariable int id) {
+        Department department = departmentService.getDepartmentById(id);
+        if (department != null) {
+            return new ResponseEntity<>(department, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
     @PostMapping("/admin/departments/update")
     public String departmentUpdate(@Valid @ModelAttribute("department") Department department,
@@ -98,28 +107,6 @@ public class DepartmentController {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
         }
 
-        return "redirect:/admin/departments";
- 
-    }
-
-    @PostMapping("/admin/departments/add")
-    public String departmentAdd(@Valid @ModelAttribute("department") Department department,
-            BindingResult bindingResult,
-            Model model,
-            RedirectAttributes redirectAttributes) {
-        
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("departments", departmentService.getDepartments());
-            return "admin/departments";
-        }
-
-        boolean success = departmentService.addOrUpdateDepartment(department);
-
-        if (success) {
-            redirectAttributes.addFlashAttribute("successMessage", "Thêm khoa thành công");
-        } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không thể thêm khoa");
-        }
         return "redirect:/admin/departments";
     }
 }
